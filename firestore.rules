@@ -1,0 +1,65 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net: default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128;
+    }
+
+    // User profiles
+    match /users/{userId} {
+      allow get: if isSignedIn() && isValidId(userId);
+      allow list: if isSignedIn();
+      allow create: if isSignedIn() && isOwner(userId) && isValidId(userId)
+        && request.resource.data.uid == request.auth.uid;
+      allow update: if isSignedIn() && isOwner(userId) && isValidId(userId);
+      allow delete: if isOwner(userId);
+
+      // Friends subcollection
+      match /friends/{friendId} {
+        allow read, write: if isSignedIn() && isValidId(friendId)
+          && (isOwner(userId) || request.auth.uid == friendId);
+      }
+    }
+
+    // Direct User-to-User Friend Requests
+    match /friendRequests/{requestId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn()
+        && request.resource.data.fromUserId == request.auth.uid;
+      allow update, delete: if isSignedIn()
+        && (
+          resource.data.fromUserId == request.auth.uid
+          || resource.data.toUserId == request.auth.uid
+          || (request.auth.token.email != null && resource.data.toUserEmail == request.auth.token.email)
+          || (request.auth.token.email != null && resource.data.fromUserEmail == request.auth.token.email)
+        );
+    }
+
+    // Meal Pots
+    match /mealPots/{potId} {
+      allow read, list: if isSignedIn();
+      allow create: if isSignedIn()
+        && request.resource.data.hostId == request.auth.uid
+        && request.resource.data.memberIds is list
+        && request.auth.uid in request.resource.data.memberIds;
+      allow update: if isSignedIn()
+        && (request.auth.uid in resource.data.memberIds || resource.data.hostId == request.auth.uid);
+      allow delete: if isSignedIn()
+        && (resource.data.hostId == request.auth.uid || request.auth.uid in resource.data.memberIds);
+    }
+  }
+}

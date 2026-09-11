@@ -1,0 +1,10 @@
+{
+  "name": "밥팟 - 친구 맞춤 맛집 추천 & 투표",
+  "description": "친구들의 선호·비선호 메뉴, 알레르기, 최근 3일 식사 기록을 취합하여 중복 일정 없는 식사 팟을 결성하고 최적의 맛집을 추천받아 투표로 결정하는 서비스",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

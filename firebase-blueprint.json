@@ -1,0 +1,222 @@
+{
+  "entities": {
+    "userProfile": {
+      "title": "UserProfile",
+      "description": "User profile with food preferences, allergies, and recent meals",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Firebase Auth UID of the user",
+          "maxLength": 128
+        },
+        "name": {
+          "type": "string",
+          "description": "Display name of user",
+          "maxLength": 100
+        },
+        "email": {
+          "type": "string",
+          "description": "Google account email address",
+          "maxLength": 150
+        },
+        "avatar": {
+          "type": "string",
+          "description": "Avatar photo URL",
+          "maxLength": 500
+        },
+        "allergies": {
+          "type": "array",
+          "description": "List of food allergies (100% excluded from recommendations)"
+        },
+        "favoriteFoods": {
+          "type": "array",
+          "description": "List of favorite foods (eligible for recent meal rescue)"
+        },
+        "dislikedFoods": {
+          "type": "array",
+          "description": "List of disliked foods (excluded from recommendations)"
+        },
+        "recentMeals": {
+          "type": "array",
+          "description": "List of meals eaten in the last 3 days"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Creation ISO timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Last updated ISO timestamp"
+        }
+      },
+      "required": ["uid", "name", "email"]
+    },
+    "friend": {
+      "title": "Friend",
+      "description": "A friend added to a user's friend list",
+      "type": "object",
+      "properties": {
+        "friendId": {
+          "type": "string",
+          "description": "UID of the friend",
+          "maxLength": 128
+        },
+        "friendName": {
+          "type": "string",
+          "description": "Name of the friend",
+          "maxLength": 100
+        },
+        "friendEmail": {
+          "type": "string",
+          "description": "Email of the friend",
+          "maxLength": 150
+        },
+        "friendAvatar": {
+          "type": "string",
+          "description": "Avatar of the friend",
+          "maxLength": 500
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when friendship was added"
+        }
+      },
+      "required": ["friendId", "friendName", "friendEmail"]
+    },
+    "friendRequest": {
+      "title": "FriendRequest",
+      "description": "Real Google account user-to-user friend request",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique request ID",
+          "maxLength": 128
+        },
+        "fromUserId": {
+          "type": "string",
+          "description": "UID of sender",
+          "maxLength": 128
+        },
+        "fromUserName": {
+          "type": "string",
+          "description": "Name of sender",
+          "maxLength": 100
+        },
+        "fromUserEmail": {
+          "type": "string",
+          "description": "Email of sender",
+          "maxLength": 150
+        },
+        "fromUserAvatar": {
+          "type": "string",
+          "description": "Avatar of sender",
+          "maxLength": 500
+        },
+        "toUserId": {
+          "type": "string",
+          "description": "UID of recipient",
+          "maxLength": 128
+        },
+        "toUserEmail": {
+          "type": "string",
+          "description": "Email of recipient",
+          "maxLength": 150
+        },
+        "status": {
+          "type": "string",
+          "description": "Status of request",
+          "enum": ["PENDING", "ACCEPTED", "REJECTED"]
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Request creation timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Request resolution timestamp"
+        }
+      },
+      "required": ["id", "fromUserId", "toUserId", "status"]
+    },
+    "mealPot": {
+      "title": "MealPot",
+      "description": "A shared meal meeting group schedule with restaurant recommendations and voting",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Meal pot unique ID",
+          "maxLength": 128
+        },
+        "title": {
+          "type": "string",
+          "description": "Meeting title",
+          "maxLength": 200
+        },
+        "date": {
+          "type": "string",
+          "description": "Date of the meal (YYYY-MM-DD)",
+          "maxLength": 20
+        },
+        "slot": {
+          "type": "string",
+          "description": "Meal slot",
+          "enum": ["BREAKFAST", "LUNCH", "DINNER"]
+        },
+        "locationName": {
+          "type": "string",
+          "description": "Target location name or address",
+          "maxLength": 200
+        },
+        "hostId": {
+          "type": "string",
+          "description": "UID of the host who created the pot",
+          "maxLength": 128
+        },
+        "memberIds": {
+          "type": "array",
+          "description": "Array of member user UIDs participating in this pot"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status of the pot",
+          "enum": ["FORMING", "VOTING", "CONFIRMED"]
+        },
+        "confirmedWinnerId": {
+          "type": "string",
+          "description": "ID of confirmed winning restaurant recommendation",
+          "maxLength": 128
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Creation timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Updated timestamp"
+        }
+      },
+      "required": ["id", "title", "date", "slot", "locationName", "hostId", "memberIds", "status"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "userProfile",
+      "description": "User profile documents keyed by Auth UID"
+    },
+    "/users/{userId}/friends/{friendId}": {
+      "schema": "friend",
+      "description": "Friends of a user"
+    },
+    "/friendRequests/{requestId}": {
+      "schema": "friendRequest",
+      "description": "Real Google account user-to-user friend requests"
+    },
+    "/mealPots/{potId}": {
+      "schema": "mealPot",
+      "description": "Meal pots collection for meal gatherings and votes"
+    }
+  }
+}
